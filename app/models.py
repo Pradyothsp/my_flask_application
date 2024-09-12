@@ -7,7 +7,7 @@ db = SQLAlchemy()
 class Category(db.Model):
     __tablename__ = "categories"
 
-    categoryid = db.Column(db.Integer, primary_key=True)
+    categoryid = db.Column(db.Integer, primary_key=True, autoincrement=True)
     categoryname = db.Column(db.String(255), nullable=True)
     description = db.Column(db.String(255), nullable=True)
 
@@ -16,7 +16,7 @@ class Category(db.Model):
 class Customer(db.Model):
     __tablename__ = "customers"
 
-    customerid = db.Column(db.Integer, primary_key=True)
+    customerid = db.Column(db.Integer, primary_key=True, autoincrement=True)
     customername = db.Column(db.String(255), nullable=True)
     contactname = db.Column(db.String(255), nullable=True)
     address = db.Column(db.String(255), nullable=True)
@@ -29,7 +29,7 @@ class Customer(db.Model):
 class Employee(db.Model):
     __tablename__ = "employees"
 
-    employeeid = db.Column(db.Integer, primary_key=True)
+    employeeid = db.Column(db.Integer, primary_key=True, autoincrement=True)
     lastname = db.Column(db.String(255), nullable=True)
     firstname = db.Column(db.String(255), nullable=True)
     birthdate = db.Column(db.Date, nullable=True)
@@ -41,7 +41,7 @@ class Employee(db.Model):
 class Order(db.Model):
     __tablename__ = "orders"
 
-    orderid = db.Column(db.Integer, primary_key=True)
+    orderid = db.Column(db.Integer, primary_key=True, autoincrement=True)
     customerid = db.Column(
         db.Integer, db.ForeignKey("customers.customerid"), nullable=True
     )
@@ -63,8 +63,9 @@ class Order(db.Model):
 class OrderDetail(db.Model):
     __tablename__ = "order_details"
 
-    orderdetailid = db.Column(db.Integer, primary_key=True)
-    orderid = db.Column(db.Integer, db.ForeignKey("orders.orderid"), nullable=True)
+    orderdetailid = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    orderid = db.Column(db.Integer, db.ForeignKey(
+        "orders.orderid"), nullable=True)
     productid = db.Column(
         db.Integer, db.ForeignKey("products.productid"), nullable=True
     )
@@ -79,7 +80,7 @@ class OrderDetail(db.Model):
 class Product(db.Model):
     __tablename__ = "products"
 
-    productid = db.Column(db.Integer, primary_key=True)
+    productid = db.Column(db.Integer, primary_key=True, autoincrement=True)
     productname = db.Column(db.String(255), nullable=True)
     supplierid = db.Column(
         db.Integer, db.ForeignKey("suppliers.supplierid"), nullable=True
@@ -99,7 +100,7 @@ class Product(db.Model):
 class Shipper(db.Model):
     __tablename__ = "shippers"
 
-    shipperid = db.Column(db.Integer, primary_key=True)
+    shipperid = db.Column(db.Integer, primary_key=True, autoincrement=True)
     shippername = db.Column(db.String(255), nullable=True)
     phone = db.Column(db.String(255), nullable=True)
 
@@ -108,7 +109,7 @@ class Shipper(db.Model):
 class Supplier(db.Model):
     __tablename__ = "suppliers"
 
-    supplierid = db.Column(db.Integer, primary_key=True)
+    supplierid = db.Column(db.Integer, primary_key=True, autoincrement=True)
     suppliername = db.Column(db.String(255), nullable=True)
     contactname = db.Column(db.String(255), nullable=True)
     address = db.Column(db.String(255), nullable=True)

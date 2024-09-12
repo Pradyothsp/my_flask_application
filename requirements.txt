@@ -4,3 +4,4 @@ Flask-Migrate
 Flask-RESTful
 python-dotenv
 psycopg2-binary
+marshmallow-sqlalchemy

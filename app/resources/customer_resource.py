@@ -1,103 +1,59 @@
-from flask_restful import Resource, reqparse
-from app.models import db, Customer
+from flask import request
+from flask_restful import Resource
+from marshmallow import ValidationError
+
+from app.models import Customer, db
+from app.schemas import CustomerSchema
+
+customer_schema = CustomerSchema()
+customers_schema = CustomerSchema(many=True)
 
 
 class CustomerResource(Resource):
     def get(self, customer_id=None):
         if customer_id:
-            customer = Customer.query.get(customer_id)
-            if customer:
-                return {
-                    "customer": {
-                        "customerid": customer.customerid,
-                        "customername": customer.customername,
-                        "contactname": customer.contactname,
-                        "address": customer.address,
-                        "city": customer.city,
-                        "postalcode": customer.postalcode,
-                        "country": customer.country,
-                    }
-                }, 200
-            return {"message": "Customer not found"}, 404
+            customer = Customer.query.get_or_404(customer_id)
+            return customer_schema.dump(customer)
         else:
             customers = Customer.query.all()
-            return {
-                "customers": [
-                    {
-                        "customerid": customer.customerid,
-                        "customername": customer.customername,
-                        "contactname": customer.contactname,
-                        "address": customer.address,
-                        "city": customer.city,
-                        "postalcode": customer.postalcode,
-                        "country": customer.country,
-                    }
-                    for customer in customers
-                ]
-            }, 200
+            return customers_schema.dump(customers)
 
     def post(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument(
-            "customername",
-            type=str,
-            required=True,
-            help="Customer name cannot be blank",
-        )
-        parser.add_argument("contactname", type=str)
-        parser.add_argument("address", type=str)
-        parser.add_argument("city", type=str)
-        parser.add_argument("postalcode", type=str)
-        parser.add_argument("country", type=str)
-        args = parser.parse_args()
+        json_data = request.get_json()
+        try:
+            # Load and validate data with Marshmallow schema, providing the session
+            data = customer_schema.load(json_data, session=db.session)
+        except ValidationError as err:
+            return {"errors": err.messages}, 400
 
-        customer = Customer(
-            customername=args["customername"],
-            contactname=args.get("contactname"),
-            address=args.get("address"),
-            city=args.get("city"),
-            postalcode=args.get("postalcode"),
-            country=args.get("country"),
-        )
-        db.session.add(customer)
+        # The 'data' is now an Order instance, no need to create it manually
+        db.session.add(data)
         db.session.commit()
-        return {"message": "Customer created", "customerid": customer.customerid}, 201
+
+        # Return the created order
+        return customer_schema.dump(data), 201
 
     def put(self, customer_id):
-        parser = reqparse.RequestParser()
-        parser.add_argument("customername", type=str)
-        parser.add_argument("contactname", type=str)
-        parser.add_argument("address", type=str)
-        parser.add_argument("city", type=str)
-        parser.add_argument("postalcode", type=str)
-        parser.add_argument("country", type=str)
-        args = parser.parse_args()
+        json_data = request.get_json()
+        customer = Customer.query.get_or_404(customer_id)
 
-        customer = Customer.query.get(customer_id)
         if not customer:
             return {"message": "Customer not found"}, 404
 
-        if args["customername"]:
-            customer.customername = args["customername"]
-        if args["contactname"]:
-            customer.contactname = args["contactname"]
-        if args["address"]:
-            customer.address = args["address"]
-        if args["city"]:
-            customer.city = args["city"]
-        if args["postalcode"]:
-            customer.postalcode = args["postalcode"]
-        if args["country"]:
-            customer.country = args["country"]
+        try:
+            # Use Marshmallow to load and update fields automatically
+            updated_customer = customer_schema.load(
+                json_data, instance=customer, partial=True, session=db.session
+            )
+        except ValidationError as err:
+            return {"errors": err.messages}, 400
 
         db.session.commit()
-        return {"message": "Customer updated"}, 200
+        return customer_schema.dump(updated_customer)
 
     def delete(self, customer_id):
-        customer = Customer.query.get(customer_id)
-        if not customer:
-            return {"message": "Customer not found"}, 404
+        customer = Customer.query.get_or_404(customer_id)
 
         db.session.delete(customer)
         db.session.commit()
-        return {"message": "Customer deleted"}, 200
+        return {"message": "Order deleted"}, 200
