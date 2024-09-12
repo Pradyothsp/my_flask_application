@@ -4,7 +4,7 @@
 ## Overview
 
 - RESTful API endpoints for managing orders, customers, and employees.
-- Versioned API routes (/api/v1).
+- Versioned API routes (`/api/v1`).
 - ntegrated with PostgreSQL using SQLAlchemy.
 - Database migrations handled by Flask-Migrate.
 
@@ -16,6 +16,13 @@
 - Flask-Migrate: SQLAlchemy database migrations for Flask.
 - SQLAlchemy: SQL toolkit and Object-Relational Mapping (ORM) library.
 - PostgreSQL: Relational database management system.
+- Marshmallow: Object serialization/deserialization and data validation library.
+
+
+
+
+
+
 
 
 ## Setup
@@ -65,7 +72,7 @@
 
     ```bash
     flask db init
-    flask db migrate -m "Initial migration."
+    flask db migrate -m "<Message>"
     flask db upgrade
     ```
 
